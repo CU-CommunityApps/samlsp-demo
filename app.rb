@@ -1,7 +1,6 @@
 require 'sinatra/base'
 require 'onelogin/ruby-saml'
 require 'json'
-require 'pp'
 
 class App < Sinatra::Base
   set :bind, "0.0.0.0"
@@ -23,7 +22,6 @@ class App < Sinatra::Base
   post '/saml/consume' do
     response          = OneLogin::RubySaml::Response.new(params[:SAMLResponse])
     response.settings = get_saml_settings
-    pp response.attributes
 
     if response.is_valid?
       "Success! Hello #{response.attributes['urn:oid:2.5.4.42']}!"
@@ -40,14 +38,13 @@ class App < Sinatra::Base
   end
 
   def get_saml_settings
-      idp_metadata_parser = OneLogin::RubySaml::IdpMetadataParser.new
-      settings = idp_metadata_parser.parse_remote("https://shibidp-test.cit.cornell.edu/idp/shibboleth")
+    idp_metadata_parser = OneLogin::RubySaml::IdpMetadataParser.new
+    settings = idp_metadata_parser.parse_remote("https://shibidp-test.cit.cornell.edu/idp/shibboleth")
 
-      settings.assertion_consumer_service_url = "https://shib.srb55.cs.cucloud.net/saml/consume"
-      settings.issuer                         = "https://shib.srb55.cs.cucloud.net/saml/metadata"
-      settings.authn_context                  = "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"
+    settings.assertion_consumer_service_url = "https://shib.srb55.cs.cucloud.net/saml/consume"
+    settings.issuer                         = "https://shib.srb55.cs.cucloud.net/saml/metadata"
 
-      settings
-    end
+    settings
+  end
 
 end
